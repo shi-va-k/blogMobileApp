@@ -5,8 +5,7 @@ import User from '../User';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Chatting from './Chatting';
-import {BASE_URL} from '@env'
-
+import { BASE_URL } from '@env'
 
 const Chat = () => {
   const [users, setUsers] = useState([]);
@@ -15,7 +14,6 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const userId = tokenn?.userData?.id;
 
-  // Function to fetch users
   const fetchUsers = async () => {
     try {
       const response = await fetch(`${BASE_URL}/user/getAll`);
@@ -29,18 +27,17 @@ const Chat = () => {
     }
   };
 
-  // Function to fetch requests (accessible outside of useEffect as well)
   const fetchRequests = async () => {
-    if (!userId) return; // Ensure userId is available
+    if (!userId) return;
 
     setLoading(true);
     try {
       const response = await axios.get(`${BASE_URL}/getRequests/${userId}`);
-      setRequests(response.data);  // Update the requests state
+      setRequests(response.data);
     } catch (error) {
       console.error('Error fetching requests:', error);
     } finally {
-      setLoading(false); // Stop loading indicator
+      setLoading(false);
     }
   };
 
@@ -50,16 +47,18 @@ const Chat = () => {
         console.error('Invalid userId or requestId');
         return;
       }
-  
+
       const response = await axios.post(
         `${BASE_URL}/acceptRequest`,
-        { userId : userId,
-           requestId: requestId }
+        {
+          userId: userId,
+          requestId: requestId
+        }
       );
-  
+
       if (response.status === 200) {
-        console.log('Request accepted successfully:', response.data);
-        await fetchRequests(); // Refresh the list after accepting
+        // console.log('Request accepted successfully:', response.data);
+        await fetchRequests();
       } else {
         console.error('Failed to accept request:', response.status);
       }
@@ -68,7 +67,7 @@ const Chat = () => {
     }
   };
   const [chats, setChats] = useState([])
-  const getUser = async()=>{
+  const getUser = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/user/${userId}`)
       setChats(response.data)
@@ -78,18 +77,18 @@ const Chat = () => {
     }
   }
 
-  useEffect(()=>{
-    if(userId){
-  getUser()
+  useEffect(() => {
+    if (userId) {
+      getUser()
     }
   }, [userId])
-  
-console.log("usersi", chats)
-  // Delete Request Handler
+
+  console.log("usersi", chats)
+
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${BASE_URL}/deleteRequest/${id}`);
-      fetchRequests(); // Refresh requests after deleting
+      fetchRequests();
     } catch (error) {
       console.error('Error deleting request:', error);
     }
@@ -102,18 +101,18 @@ console.log("usersi", chats)
       setTokenn(userdataa);
     };
     gettingToken();
-  }, []); // Run once when component mounts
+  }, []);
 
   useEffect(() => {
-    fetchRequests(); // Fetch requests on userId change
-  }, [userId]);  // When userId changes, fetch requests
+    fetchRequests();
+  }, [userId]);
   const options = ['Chats', 'Calls', 'Profile'];
   return (
     <SafeAreaView>
       <View className='px-5'>
         {requests.map((itemm) => (
           <View key={itemm._id} className='py-3 flex flex-row justify-between'>
-            {/* Content section: Image, Name, Message */}
+
             <View className='flex flex-row gap-4 items-center justify-center'>
               <Image source={{ uri: 'https://via.placeholder.com/150' }} className='w-10 h-10 rounded-[40px] bg-black' />
               <View>
@@ -121,51 +120,44 @@ console.log("usersi", chats)
                 <Text className='text-gray-500'>{itemm.message}</Text>
               </View>
             </View>
-            
-            {/* Actions: Accept Button and Delete Icon */}
+
             <View className='flex flex-row gap-2 justify-center items-center mt-3'>
-              {/* Accept Button */}
+
               <Pressable onPress={() => handleAccept(itemm?._id)}>
                 <Text className='bg-blue-400 px-5 py-2 rounded-md text-white'>Accept</Text>
               </Pressable>
-              
-              {/* Delete Icon */}
-              <Icon 
-                name="delete" 
-                size={30} 
-                color="red" 
-                onPress={() => handleDelete(itemm._id)} 
-                style={{ marginLeft: 10 }}  // Adds margin between button and icon
+
+              <Icon
+                name="delete"
+                size={30}
+                color="red"
+                onPress={() => handleDelete(itemm._id)}
+                style={{ marginLeft: 10 }}
               />
             </View>
           </View>
         ))}
       </View>
 
-
-    {/* Chats Section */}
-    <View>
-      <Text className='mx-5'>Chats</Text>
-  {options?.includes('Chats') && (
-    chats?.length > 0 ? (
-      <View className='mx-5'>
-        {chats.map((item, index) => (
-          <Chatting item={item} key={item._id}/>
-        ))}
+      <View>
+        <Text className='mx-5'>Chats</Text>
+        {options?.includes('Chats') && (
+          chats?.length > 0 ? (
+            <View className='mx-5'>
+              {chats.map((item, index) => (
+                <Chatting item={item} key={item._id} />
+              ))}
+            </View>
+          ) : (
+            <View className="py-10 px-5">
+              <Text>No chats available</Text>
+            </View>
+          )
+        )}
       </View>
-    ) : (
-      <View className="py-10 px-5">
-        <Text>No chats available</Text>
-      </View>
-    )
-  )}
-</View>
-
-
       <View>
         <Text className='text-center text-lg font-bold mt-7'>People using Signal</Text>
       </View>
-
       <FlatList
         data={users}
         renderItem={({ item }) => <User item={{ ...item, id: item.user_id }} />}

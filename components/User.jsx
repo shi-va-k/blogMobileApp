@@ -21,7 +21,7 @@ const User = ({item}) => {
     pathname: '/requestChatRoom',
     params: {
       name: item?.name,
-      receivedId: item?._id, // Ensure item._id is properly passed
+      receivedId: item?._id,
     },
   });
 }}>

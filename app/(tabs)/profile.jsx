@@ -2,21 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Platform, StyleSheet } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router'; // For routing with expo-router
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure AsyncStorage is imported
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector } from "react-redux";
 export default function App() {
-  // State for editable fields and image
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('hlooooo');
   const [bio, setBio] = useState('Jai Balayyaa jj🔥🔥💘');
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // To show loading indicator if necessary
+  const [isLoading, setIsLoading] = useState(false);
   const [profileImage, setProfileImage] = useState('https://via.placeholder.com/150');
 
-  const router = useRouter(); // Initialize router from expo-router
+  const router = useRouter();
 
-  // Function to open image picker (only for native platforms)
   const selectImage = () => {
     if (isEditing && Platform.OS !== 'web') {
       launchImageLibrary({}, (response) => {
@@ -25,12 +23,11 @@ export default function App() {
         }
       });
     } else if (isEditing && Platform.OS === 'web') {
-      // For web, we use a file input
+
       document.getElementById('fileInput').click();
     }
   };
 
-  // Handle web image selection
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -43,8 +40,8 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("token"); // Clear token
-    router.replace("/sign-in"); // Redirect to login page
+    await AsyncStorage.removeItem("token");
+    router.replace("/sign-in");
   };
 
 
@@ -59,7 +56,7 @@ export default function App() {
         <View>
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <Text style={styles.title}>{user.name }</Text>
+              <Text style={styles.title}>{user.name}</Text>
               <FontAwesome name="angle-down" size={20} />
             </View>
             <TouchableOpacity onPress={() => setIsDropdownVisible(!isDropdownVisible)}>
@@ -70,37 +67,30 @@ export default function App() {
                 <TouchableOpacity onPress={handleLogout}>
                   <Text style={styles.dropdownItem}>Logout</Text>
                 </TouchableOpacity>
-                {/* <TouchableOpacity onPress={}>
-                  <Text style={styles.dropdownItem}>Saved</Text>
-                </TouchableOpacity> */}
               </View>
             )}
           </View>
 
           <View style={styles.profileStats}>
-            {/* Profile Image */}
             <View style={styles.profileImageContainer}>
               <TouchableOpacity onPress={selectImage}>
                 <Image
                   style={styles.profileImage}
-                  source={{ uri: profileImage }} // Use selected image URI
+                  source={{ uri: profileImage }}
                 />
               </TouchableOpacity>
             </View>
 
-            {/* Posts */}
             <View style={styles.statContainer}>
               <Text style={styles.statNumber}>178</Text>
               <Text style={styles.statLabel}>Posts</Text>
             </View>
 
-            {/* Followers */}
             <View style={styles.statContainer}>
               <Text style={styles.statNumber}>878</Text>
               <Text style={styles.statLabel}>Followers</Text>
             </View>
 
-            {/* Following */}
             <View style={styles.statContainer}>
               <Text style={styles.statNumber}>578</Text>
               <Text style={styles.statLabel}>Following</Text>
@@ -142,7 +132,6 @@ export default function App() {
             </TouchableOpacity>
           </View>
 
-          {/* Icons in Row */}
           <View style={styles.iconRow}>
             <FontAwesome name="play-circle" size={34} color="black" />
             <FontAwesome name="play-circle" size={34} color="black" />
@@ -150,7 +139,6 @@ export default function App() {
             <FontAwesome name="play-circle" size={34} color="black" />
           </View>
 
-          {/* Web file input for image selection */}
           {Platform.OS === 'web' && (
             <input
               id="fileInput"

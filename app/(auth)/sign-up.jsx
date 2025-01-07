@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import {BASE_URL} from '@env'
+import { BASE_URL } from '@env'
 
 const SignUpPage = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
-//   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignUp = async () => {
@@ -16,12 +15,6 @@ const SignUpPage = () => {
       Alert.alert("Error", "All fields are required");
       return;
     }
-
-    // if (password !== confirmPassword) {
-    //   Alert.alert("Error", "Passwords do not match");
-    //   return;
-    // }
-
     setIsLoading(true);
 
     try {
@@ -73,13 +66,6 @@ const SignUpPage = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      {/* <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      /> */}
       <TouchableOpacity style={styles.button} onPress={handleSignUp} disabled={isLoading}>
         <Text style={styles.buttonText}>{isLoading ? "Loading..." : "Sign Up"}</Text>
       </TouchableOpacity>

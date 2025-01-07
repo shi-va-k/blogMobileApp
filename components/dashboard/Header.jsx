@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderWidth: 2,
-    borderRadius: 40, // Fully rounded
+    borderRadius: 40, 
     marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -93,6 +93,6 @@ const styles = StyleSheet.create({
   storyImage: {
     width: 70,
     height: 70,
-    borderRadius: 35, // Fully rounded
+    borderRadius: 35, 
   },
 });
