@@ -22,8 +22,8 @@ const Dashboard = () => {
 //   }, [router]);
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('userToken'); // Remove token
-    router.replace('/'); // Redirect to login
+    await AsyncStorage.removeItem('userToken'); 
+    router.replace('/'); 
   };
 
   if (isLoading) {
@@ -46,7 +46,5 @@ const Dashboard = () => {
   </>
   );
 };
-
-
 
 export default Dashboard;

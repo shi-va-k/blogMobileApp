@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from "react-redux";
-import {BASE_URL} from '@env'
+import { BASE_URL } from '@env'
 
 const LoginPage = () => {
   const router = useRouter();
@@ -13,18 +12,18 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   // Check if the user is already logged in
-//   useEffect(() => {
-//     const checkLoginStatus = async () => {
-//       const token = await AsyncStorage.getItem("token");
+  //   useEffect(() => {
+  //     const checkLoginStatus = async () => {
+  //       const token = await AsyncStorage.getItem("token");
 
-//       if (token) {
-//         // If the token exists, navigate to the home page
-//         router.push("/home");
-//       }
-//     };
+  //       if (token) {
+  //         // If the token exists, navigate to the home page
+  //         router.push("/home");
+  //       }
+  //     };
 
-//     checkLoginStatus();
-//   }, [router]);
+  //     checkLoginStatus();
+  //   }, [router]);
 
   const handleLogin = async () => {
     if (!name || !password) {
@@ -42,31 +41,31 @@ const LoginPage = () => {
         },
         body: JSON.stringify({ password, name }),
       });
-      
+
       const result = await response.json();
-      console.log(result,"dhgkjsl")
-      console.log("KOIJHCGhuiohu", result.token)
+      // console.log(result,"dhgkjsl")
+      // console.log("KOIJHCGhuiohu", result.token)
       const tokenSucess = await AsyncStorage.setItem('userToken', result.token);
 
       if (response.ok) {
         await AsyncStorage.setItem("userToken", result.token);
         await AsyncStorage.setItem("userId", result.user.id);
         await AsyncStorage.setItem("userData", JSON.stringify(result.user)); // Save user info
-      
+
         dispatch({
           type: "SET_USER",
           payload: {
             name: result.user.name,
             email: result.user.email,
             token: result.token,
-            id:result.user.id
+            id: result.user.id
           },
         });
-      
+
         Alert.alert("Success", "Login successful!");
         router.push("/home");
       }
-       else {
+      else {
         Alert.alert("Error", result.message || "Login failed");
       }
     } catch (error) {
@@ -76,7 +75,7 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
-  
+
 
   return (
     <View style={styles.container}>

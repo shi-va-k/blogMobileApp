@@ -42,8 +42,7 @@ const LoginPage = () => {
       });
 
       const result = await response.json();
-      console.log(result,"dhgkjsl")
-      console.log("KOIJHCGhuiohu")
+      // console.log(result,"dhgkjsl")
       const tokenSucess = await AsyncStorage.setItem('userToken', result.token);
 
       if (response.ok) {
@@ -74,7 +73,6 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <View style={styles.container}>

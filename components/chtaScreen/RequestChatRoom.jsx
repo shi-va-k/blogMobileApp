@@ -1,5 +1,3 @@
-// RequestChatRoom Component
-
 import { View, Text, KeyboardAvoidingView, ScrollView, TextInput, Pressable, Alert, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import getToken from '../GetToken'
@@ -12,14 +10,10 @@ import axios from 'axios'
 import { useRoute } from '@react-navigation/native'
 import {BASE_URL} from '@env'
 
-
 const RequestChatRoom = () => {
-  const route = useRoute();  // Get the route params
+  const route = useRoute();  
   const navigation = useNavigation();
-  
-  // Retrieve receiver's data from route params
   const { name, receivedId } = route.params;
-  
   const [tokenn, setTokenn] = useState('');
   const [message, setMessage] = useState('');
   
@@ -36,12 +30,12 @@ const RequestChatRoom = () => {
   const sendRequest = async () => {
     try {
       const userData = {
-        senderId: userId,  // Make sure userId is correctly set
-        receiverId: receivedId,  // Use the receiver's ID from params
+        senderId: userId,  
+        receiverId: receivedId,  
         message: message,
       };
 
-      console.log("Payload to send:", userData);
+      // console.log("Payload to send:", userData);
 
       const response = await fetch(
         `${BASE_URL}/sendRequest`,
@@ -68,14 +62,9 @@ const RequestChatRoom = () => {
     }
   };
 
-  useEffect(() => {
-    console.log('Route params:', route.params);
-  }, []);
-
   return (
     <KeyboardAvoidingView className="h-full" behavior="padding">
 
-        {/* Header Section */}
         <View className='flex '>
           <View className='flex justify-between flex-row pr-20 gap-3 py-3 items-center bg-gray-200'>
           <Icon
@@ -92,16 +81,11 @@ const RequestChatRoom = () => {
    
         </View>
 
-      {/* Receiver's Name at the top of the chat */}
-     
-
-      {/* Chat Input Section (Fixed at Bottom) */}
       <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 10 }} className='bg-gray-200'>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Emoji Icon */}
+
           <Entypo name="emoji-happy" size={20} color="gray" />
 
-          {/* Text Input */}
           <TextInput
             value={message}
             onChangeText={setMessage}
@@ -109,15 +93,12 @@ const RequestChatRoom = () => {
             placeholder="Type a message"
           />
 
-          {/* Camera Icon */}
           <Entypo name="camera" size={20} color="gray" />
 
-          {/* Mic Icon + Send Emoji */}
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {/* Mic Icon */}
+
             <Feather name="mic" size={20} color="gray" />
 
-            {/* Send Emoji Icon */}
             <Pressable onPress={sendRequest}>
               <Ionicons name="send" size={24} color="#007BFF" style={{ marginLeft: 8 }} />
             </Pressable>

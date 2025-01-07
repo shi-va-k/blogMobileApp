@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux';
 import getToken from '../GetToken';
 import {BASE_URL} from '@env'
 
-
 export default function Posts() {
   const [expandedPostIds, setExpandedPostIds] = useState([]);
   const [selectedPostId, setSelectedPostId] = useState(null);
@@ -16,8 +15,6 @@ export default function Posts() {
   const [likeCounts, setLikeCounts] = useState({});
   const [isExpanded, setIsExpanded] = useState(false);
   const [commentss, setCommentss] = useState(false);
-
-  
 
   const toggleCaption = (postId) => {
     setExpandedPostIds((prev) =>
@@ -34,24 +31,17 @@ export default function Posts() {
   const [toggleSave, setToggleSave] = useState({});
   const [toggleLikePost, setToggleLikePost] = useState({});
 
-  // const saveToggleFunction = (postId) => {
-  //   setToggleSave((prevState) => ({
-  //     ...prevState,
-  //     [postId]: !prevState[postId], // Toggle save state for this specific post
-  //   }));
-  // };
-
   const toggleLikeFunction = (postId) => {
     setToggleLikePost((prevState) => {
-      const isLiked = prevState[postId] || false; // Get the current like state for this specific post
+      const isLiked = prevState[postId] || false; 
       setLikeCounts((prevCounts) => ({
         ...prevCounts,
-        [postId]: isLiked ? (prevCounts[postId] || 0) - 1 : (prevCounts[postId] || 0) + 1, // Increment or decrement like count
+        [postId]: isLiked ? (prevCounts[postId] || 0) - 1 : (prevCounts[postId] || 0) + 1, 
       }));
 
       return {
         ...prevState,
-        [postId]: !isLiked, // Toggle like state for this specific post
+        [postId]: !isLiked, 
       };
     });
   };
@@ -65,7 +55,7 @@ const [tokenn, setTokenn] = useState('')
 
     fetchToken();
   }, []);
-  console.log('Token from useEffect in postname:', tokenn?.userData?.name);
+  // console.log('Token from useEffect in postname:', tokenn?.userData?.name);
 
   const [commentClick, setCommentClick] = useState(false);
 
@@ -97,7 +87,7 @@ const [tokenn, setTokenn] = useState('')
 
   const handleCommentSubmit = async () => {
     if (!commentText.trim()) {
-      return; // Don't submit if the comment is empty
+      return; 
     }
   
     try {
@@ -105,7 +95,7 @@ const [tokenn, setTokenn] = useState('')
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${tokenn.token}`, // Use the token of the logged-in user
+          Authorization: `Bearer ${tokenn.token}`, 
         },
         body: JSON.stringify({
           postId: selectedPostId,
@@ -117,19 +107,18 @@ const [tokenn, setTokenn] = useState('')
   
       if (response.ok) {
         const newComment = {
-          username: tokenn.userData.name, // Use the logged-in user's name
+          username: tokenn.userData.name, 
           text: commentText,
-          createdAt: new Date().toISOString(), // Generate a current timestamp
-          _id: data.comment._id || new Date().getTime().toString(), // Use API-generated ID or fallback
+          createdAt: new Date().toISOString(), 
+          _id: data.comment._id || new Date().getTime().toString(),
         };
   
-        // Update the comments state for the current post
         setCommentss((prev) => [
           ...prev,
-          newComment, // Add the new comment
+          newComment,
         ]);
   
-        setCommentText(''); // Clear the input field
+        setCommentText(''); 
       } else {
         console.error('Failed to submit comment:', data.message);
       }
@@ -140,19 +129,19 @@ const [tokenn, setTokenn] = useState('')
   
 
   const [imageData, setImageData] = useState([]);
-  const [loading, setLoading] = useState(true);  // You need a loading state
+  const [loading, setLoading] = useState(true);  
 
   useEffect(() => {
-    // Fetch images data from the server
+
     const fetchImages = async () => {
       try {
         const response = await fetch(`${BASE_URL}/images/getAll`);
         const data = await response.json();
-        setImageData(data);  // Set the response data to state
-        setLoading(false);  // Set loading to false once data is fetched
+        setImageData(data);  
+        setLoading(false); 
       } catch (err) {
-        console.log(err, 'error');  // Log any error for debugging
-        setLoading(false);  // Ensure loading is stopped if an error occurs
+        console.log(err, 'error');  
+        setLoading(false);  
       }
     };
 
@@ -166,7 +155,7 @@ const [tokenn, setTokenn] = useState('')
   const fetchComments = async (selectedPostId) => {
     if (!selectedPostId) {
       console.error('No selected post ID provided.');
-      return null; // Avoid making a request with an invalid postId
+      return null;
     }
 
     try {
@@ -174,14 +163,14 @@ const [tokenn, setTokenn] = useState('')
       const response = await fetch(`${BASE_URL}/comments/comments/${selectedPostId}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${tokenn.token}`, // Ensure token is available
+          'Authorization': `Bearer ${tokenn.token}`, 
         },
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Comments fetched successfully:', data.comments);
-        setCommentss(data.comments); // Update state with fetched comments
+        // console.log('Comments fetched successfully:', data.comments);
+        setCommentss(data.comments);
       } else {
         const errorData = await response.json();
         console.error('Failed to fetch comments:', errorData.message);
@@ -191,8 +180,6 @@ const [tokenn, setTokenn] = useState('')
     }
   };
 
-
-  
    return (
      <ScrollView style={styles.container}>
      {imageData?.map((item) => {
@@ -279,9 +266,9 @@ const [tokenn, setTokenn] = useState('')
     <View style={styles.commentHeader}>
       <Image
         style={styles.commentImage}
-        source={{ uri: 'path/to/image' }} // Replace with actual avatar URL if available
+        source={{ uri: 'path/to/image' }} 
       />
-      <Text style={styles.commenterName}>{comment.username}</Text> {/* Display actual username */}
+      <Text style={styles.commenterName}>{comment.username}</Text> 
     </View>
     <View style={styles.commentTextContainer}>
       <Text>{comment.text}</Text>
@@ -316,10 +303,6 @@ const [tokenn, setTokenn] = useState('')
        </Modal>
 
 
-
-
-
-
        <Modal visible={commentClick} animationType="slide" transparent>
   <View style={styles.modalContainer}>
     <View style={styles.modalContent}>
@@ -330,7 +313,6 @@ const [tokenn, setTokenn] = useState('')
 
       <ScrollView style={styles.commentsList}>
         <View style={{ display: 'flex', flexDirection: 'column' }}>
-          {/* Ensure comments[selectedPostId] exists */}
           {console.log(commentss ,"comments[selectedPostId] comments[selectedPostId] ")}
           {commentss.length > 0 ? (
   commentss.map((comment, index) => (
@@ -338,7 +320,7 @@ const [tokenn, setTokenn] = useState('')
       <View style={styles.commentHeader}>
         <Image
           style={styles.commentImage}
-          source={{ uri: 'path/to/image' }} // Replace with actual avatar URL if available
+          source={{ uri: 'path/to/image' }} 
         />
         <Text style={styles.commenterName}>{comment.username}</Text>
       </View>
@@ -377,24 +359,16 @@ const [tokenn, setTokenn] = useState('')
   </View>
 </Modal>
 
-
-
-
-
-
-
-
   <Modal visible={photoModalVisible} animationType="fade" transparent>
    <View style={styles.modalContainer}>
      <View style={styles.modalContentForImage}>
-       {/* Close Button */}
+
        <TouchableOpacity onPress={closePhotoModal} style={styles.closeButtonForPostImage}>
          <Text style={styles.closeText}>✕</Text>
        </TouchableOpacity>
  
        {selectedPhotoPost && (
          <>
-           {/* User Profile Section */}
            <View style={styles.profileSection}>
              {/* <Image
                source={{ uri: selectedPhotoPost.imageUrl }}
@@ -413,8 +387,7 @@ const [tokenn, setTokenn] = useState('')
               source={{uri: selectedPhotoPost.imageUrl}} 
               style={styles.postImage}        
             />
- 
-           {/* Icon Row */}
+
            <View style={styles.iconRowModal}>
              <TouchableOpacity onPress={() => toggleLikeFunction(selectedPhotoPost._id)}>
                <FontAwesome
