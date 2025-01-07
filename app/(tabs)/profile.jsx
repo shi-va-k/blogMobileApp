@@ -70,6 +70,9 @@ export default function App() {
                 <TouchableOpacity onPress={handleLogout}>
                   <Text style={styles.dropdownItem}>Logout</Text>
                 </TouchableOpacity>
+                {/* <TouchableOpacity onPress={}>
+                  <Text style={styles.dropdownItem}>Saved</Text>
+                </TouchableOpacity> */}
               </View>
             )}
           </View>

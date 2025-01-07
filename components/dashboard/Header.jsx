@@ -1,7 +1,8 @@
 import React from 'react';
-import { Text, View, Image, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import { Text, View, Image, ScrollView, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons from react-native-vector-icons
 import Posts from './Posts';
+import { router } from 'expo-router';
 
 const storiesData = [
   { id: 1, imageUrl: 'https://via.placeholder.com/50', isActive: false },
@@ -44,7 +45,9 @@ export default function Header() {
           }}
         >
           <Icon name="heart-outline" size={24} />
+          <Pressable onPress={()=> router.push('/notification')}>
           <Icon name="notifications-outline" size={24} />
+          </Pressable>
         </View>
       </View>
 

@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "reac
 import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useDispatch } from "react-redux";
-
+import {BASE_URL} from '@env'
 const LoginPage = () => {
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -33,7 +33,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("https://1901-2406-b400-b4-8d92-e927-e76-86ca-6c97.ngrok-free.app/user/login", {
+      const response = await fetch(`${BASE_URL}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,25 +44,27 @@ const LoginPage = () => {
       const result = await response.json();
       console.log(result,"dhgkjsl")
       console.log("KOIJHCGhuiohu")
-      const tokenSucess=await AsyncStorage.setItem('userToken', result.token);
+      const tokenSucess = await AsyncStorage.setItem('userToken', result.token);
 
       if (response.ok) {
-        Alert.alert("Success", "Login successful!");
+        await AsyncStorage.setItem("userToken", result.token);
+        await AsyncStorage.setItem("userId", result.user.id);
+        await AsyncStorage.setItem("userData", JSON.stringify(result.user)); // Save user info
+      
         dispatch({
           type: "SET_USER",
           payload: {
             name: result.user.name,
             email: result.user.email,
             token: result.token,
+            id:result.user.id
           },
         });
-
-        // Save the token in AsyncStorage
-        await AsyncStorage.setItem("token", result.token);
-
-        // Navigate to the home page
+      
+        Alert.alert("Success", "Login successful!");
         router.push("/home");
-      } else {
+      }
+       else {
         Alert.alert("Error", result.message || "Login failed");
       }
     } catch (error) {

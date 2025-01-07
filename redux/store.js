@@ -1,19 +1,23 @@
-import { createStore } from "redux";
+// store.js
+import { createStore } from 'redux';
 
+// Initial state for the user
 const initialState = {
   user: {
-    name: "",
-    email: "",
-    token: "",
+    name: '',
+    email: '',
+    token: '',
+    id:"sf",
   },
 };
 
+// Reducer to update the user data in the Redux store
 const userReducer = (state = initialState, action) => {
   switch (action.type) {
-    case "SET_USER":
+    case 'SET_USER':
       return {
         ...state,
-        user: action.payload,
+        user: action.payload, 
       };
     default:
       return state;

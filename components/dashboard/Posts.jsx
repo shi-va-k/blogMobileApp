@@ -1,233 +1,303 @@
-import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
- import React, { useState } from 'react';
- import Ionicons from 'react-native-vector-icons/Ionicons';
- import FontAwesome from 'react-native-vector-icons/FontAwesome'; 
- import moment from 'moment';
- 
- const postData = [
-   {
-     id: 1,
-     name: 'Madhusudhan Rao',
-     imageUrl: 'https://via.placeholder.com/50',
-     postImage: {
-       imageUrl: 'https://via.placeholder.com/150',
-       caption: 'This is a post captionThis is a post captionThis is a post caption',
-     },
-   },
-   {
-     id: 2,
-     name: 'John Doe',
-     imageUrl: 'https://via.placeholder.com/50',
-     postImage: {
-       imageUrl: 'https://via.placeholder.com/150',
-       caption: 'This is another post caption',
-     },
-   },
-   {
-     id: 3,
-     name: 'Jane Doe',
-     imageUrl: 'https://via.placeholder.com/50',
-     postImage: {
-       imageUrl: 'https://via.placeholder.com/150',
-       caption: 'Yet another post caption',
-     },
-   },
- ];
- 
- export default function Posts() {
-   const [expandedPostIds, setExpandedPostIds] = useState([]);
-   const [selectedPostId, setSelectedPostId] = useState(null);
-   const [commentText, setCommentText] = useState('');
-   const [comments, setComments] = useState({}); 
- 
-   const toggleCaption = (postId) => {
-     setExpandedPostIds((prev) =>
-       prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
-     );
-   };
- 
-   const truncateCaption = (caption, isExpanded) => {
-     if (isExpanded || caption.length <= 25) return caption;
-     return `${caption.slice(0, 25)}...`;
-   };
- 
-   const [toggleSave, setToggleSave] = useState({});
-   const [toggleLikePost, setTogglePostLike] = useState({});
- 
-   const saveToggleFunction = (postId) => {
-     setToggleSave((prev) => ({
-       ...prev,
-       [postId]: !prev[postId],
-     }));
-   };
- 
-   const toggleLikeFunction = (postId) => {
-     setTogglePostLike((prev) => ({
-       ...prev,
-       [postId]: !prev[postId],
-     }));
-   };
- 
-   const [commentClick, setCommentClick] = useState(false)
- 
-   const [photoModalVisible, setPhotoModalVisible] = useState(false);
-   const [selectedPhotoPost, setSelectedPhotoPost] = useState(null);
-   
-   const openPhotoModal = (post) => {
-     setSelectedPhotoPost(post);
-     setPhotoModalVisible(true);
-   };
-   
-   const closePhotoModal = () => {
-     setPhotoModalVisible(false);
-     setSelectedPhotoPost(null);
-   };
- 
-   const handleCommentClick = (postId) => {
-     setSelectedPostId(postId);
-     setCommentClick(true);
-   };
- 
-   const handleCloseModal = () => {
-     setCommentClick(false);
-     setCommentText('');
-   };
- 
-   const handleCommentSubmit = () => {
-     if (commentText.trim() === '') return;
- 
-     const newComment = {
-       text: commentText,
-       time: new Date(), // Record the current time
-     };
- 
-     setComments((prev) => ({
-       ...prev,
-       [selectedPostId]: [...(prev[selectedPostId] || []), newComment],
-     }));
-     setCommentText('');
-   };
- 
- 
- 
+import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome'; 
+import moment from 'moment';
+import { useSelector } from 'react-redux';
+import getToken from '../GetToken';
+import {BASE_URL} from '@env'
+
+
+export default function Posts() {
+  const [expandedPostIds, setExpandedPostIds] = useState([]);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState({}); 
+  const [likeCounts, setLikeCounts] = useState({});
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [commentss, setCommentss] = useState(false);
+
+  
+
+  const toggleCaption = (postId) => {
+    setExpandedPostIds((prev) =>
+      prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
+    );
+  };
+
+  const truncateCaption = (caption, postId) => {
+    const isExpanded = expandedPostIds.includes(postId);
+    if (isExpanded || caption?.length <= 25) return caption;
+    return `${caption?.slice(0, 25)}...`;
+  };
+
+  const [toggleSave, setToggleSave] = useState({});
+  const [toggleLikePost, setToggleLikePost] = useState({});
+
+  // const saveToggleFunction = (postId) => {
+  //   setToggleSave((prevState) => ({
+  //     ...prevState,
+  //     [postId]: !prevState[postId], // Toggle save state for this specific post
+  //   }));
+  // };
+
+  const toggleLikeFunction = (postId) => {
+    setToggleLikePost((prevState) => {
+      const isLiked = prevState[postId] || false; // Get the current like state for this specific post
+      setLikeCounts((prevCounts) => ({
+        ...prevCounts,
+        [postId]: isLiked ? (prevCounts[postId] || 0) - 1 : (prevCounts[postId] || 0) + 1, // Increment or decrement like count
+      }));
+
+      return {
+        ...prevState,
+        [postId]: !isLiked, // Toggle like state for this specific post
+      };
+    });
+  };
+const [tokenn, setTokenn] = useState('')
+  useEffect(() => {
+    const fetchToken = async () => {
+      const userdataa = await getToken();
+      setTokenn(userdataa)
+    
+    };
+
+    fetchToken();
+  }, []);
+  console.log('Token from useEffect in postname:', tokenn?.userData?.name);
+
+  const [commentClick, setCommentClick] = useState(false);
+
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
+  const [selectedPhotoPost, setSelectedPhotoPost] = useState(null);
+  
+  const openPhotoModal = (post) => {
+    setSelectedPhotoPost(post);
+    setPhotoModalVisible(true);
+  };
+  
+  const closePhotoModal = () => {
+    setPhotoModalVisible(false);
+    setSelectedPhotoPost(null);
+  };
+
+  const handleCommentClick = (postId) => {
+    setSelectedPostId(postId);
+    fetchComments(postId)
+    setCommentClick(true);
+  };
+
+
+
+  const handleCloseModal = () => {
+    setCommentClick(false);
+    setCommentText('');
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!commentText.trim()) {
+      return; // Don't submit if the comment is empty
+    }
+  
+    try {
+      const response = await fetch(`${BASE_URL}/comments/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tokenn.token}`, // Use the token of the logged-in user
+        },
+        body: JSON.stringify({
+          postId: selectedPostId,
+          text: commentText,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        const newComment = {
+          username: tokenn.userData.name, // Use the logged-in user's name
+          text: commentText,
+          createdAt: new Date().toISOString(), // Generate a current timestamp
+          _id: data.comment._id || new Date().getTime().toString(), // Use API-generated ID or fallback
+        };
+  
+        // Update the comments state for the current post
+        setCommentss((prev) => [
+          ...prev,
+          newComment, // Add the new comment
+        ]);
+  
+        setCommentText(''); // Clear the input field
+      } else {
+        console.error('Failed to submit comment:', data.message);
+      }
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+    }
+  };
+  
+
+  const [imageData, setImageData] = useState([]);
+  const [loading, setLoading] = useState(true);  // You need a loading state
+
+  useEffect(() => {
+    // Fetch images data from the server
+    const fetchImages = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/images/getAll`);
+        const data = await response.json();
+        setImageData(data);  // Set the response data to state
+        setLoading(false);  // Set loading to false once data is fetched
+      } catch (err) {
+        console.log(err, 'error');  // Log any error for debugging
+        setLoading(false);  // Ensure loading is stopped if an error occurs
+      }
+    };
+
+    fetchImages();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />; 
+  }
+
+  const fetchComments = async (selectedPostId) => {
+    if (!selectedPostId) {
+      console.error('No selected post ID provided.');
+      return null; // Avoid making a request with an invalid postId
+    }
+
+    try {
+      console.log('Fetching comments for postId:', selectedPostId);
+      const response = await fetch(`${BASE_URL}/comments/comments/${selectedPostId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokenn.token}`, // Ensure token is available
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Comments fetched successfully:', data.comments);
+        setCommentss(data.comments); // Update state with fetched comments
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to fetch comments:', errorData.message);
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+
+  
    return (
      <ScrollView style={styles.container}>
-       {postData.map((data) => {
-         const isExpanded = expandedPostIds.includes(data.id);
-         const isSaved = toggleSave[data.id];
-         const isLikePost = toggleLikePost[data.id];
-         return (
-           <View key={data.id} style={styles.postContainer}>
+     {imageData?.map((item) => {
+      const isLikePost = toggleLikePost[item._id] || false; 
+      const likeCount = likeCounts[item._id] || 0; 
+      const isSaved = toggleSave[item._id] || false; 
+      const isExpanded = expandedPostIds.includes(item._id);
+
+      return (
+        <View key={item.id} style={styles.postContainer}>
              <View style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
                <View style={styles.userInfo}>
-                 <Image source={{ uri: data.imageUrl }} style={styles.userImage} />
-                 <Text style={styles.userName}>{data.name}</Text>
+                 {/* <Image source={{ uri: data.imageUrl }} style={styles.userImage} /> */}
+                 <Text style={styles.userName}>{item.uploadedBy?.name}</Text>
                </View>
              </View>
- 
-             <View style={styles.postContent}>
-             <TouchableOpacity onPress={() => openPhotoModal(data)}>
-   <Image source={{ uri: data.postImage.imageUrl }} style={styles.postImage} />
- </TouchableOpacity>
-               <View style={{display:'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10, paddingTop:2,}}>
-               <View style={styles.iconRow}>
-                 <TouchableOpacity onPress={() => toggleLikeFunction(data.id)}>
-                   <FontAwesome
-                     name={isLikePost ? 'heart' : 'heart-o'} // Filled heart when liked
-                     size={24}
-                     color={isLikePost ? 'red' : 'black'} // Red when liked, black when not liked
-                     style={{
-                       backgroundColor: 'transparent', // No background needed
-                       padding: 6,
-                       borderRadius: 50,
-                     }}
-                   />
-                 </TouchableOpacity >
- 
-                 <TouchableOpacity onPress={() => handleCommentClick(data.id)}>
-                   <Ionicons name="chatbubble-outline" size={24} color="black" />
-                 </TouchableOpacity>
- 
-                 {/* {commentClick && <ModalForComment />} */}
- 
-                 <Ionicons name="share-social-outline" size={24} color="black" />
-               </View>
-               <View>
-                 <TouchableOpacity onPress={() => saveToggleFunction(data.id)}>
+
+          <View style={styles.postContent}>
+            <Pressable onPress={() => openPhotoModal(item)}>
+            <Image
+              source={{ uri: item.imageUrl }} 
+              style={styles.postImage}        
+            />
+            </Pressable>
+            <View className = 'flex flex-row justify-between mx-3'>
+            <View style={styles.iconRow}>
+              <TouchableOpacity onPress={() => toggleLikeFunction(item._id)}>
+                <FontAwesome
+                  name={isLikePost ? 'heart' : 'heart-o'}
+                  size={24}
+                  color={isLikePost ? 'red' : 'black'}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleCommentClick(item._id)}>
+                <Ionicons name="chatbubble-outline" size={24} color="black" />
+              </TouchableOpacity>
+              <Ionicons name="share-social-outline" size={24} color="black" />
+            </View>
+            {/* <Text>{likeCount} Likes</Text> */}
+            <View className='flex justify-end'>
+                 <TouchableOpacity onPress={() => saveToggleFunction(item._id)} className='flex justify-end'>
                    <Ionicons
                      name={isSaved ? 'bookmark' : 'bookmark-outline'} 
                      size={24}
                      color={isSaved ? 'black' : ''}
-                     style={{
-                       // backgroundColor: isSaved ? 'black' : 'transparent', 
-                       // padding: 6,
-                       // borderRadius: 50,
-                     }}
                    />
                  </TouchableOpacity>
                </View>
                </View>
-               <View style={styles.captionContainer}>
-                 <Text style={{ fontWeight: 'bold', fontSize: 14, marginRight: 4 }}>{data.name}</Text>
-                 <Text style={styles.caption}>
-                   {truncateCaption(data.postImage.caption, isExpanded)}
-                 </Text>
-                 {!isExpanded && data.postImage.caption.length > 25 && (
-                   <TouchableOpacity onPress={() => toggleCaption(data.id)}>
-                     <Text style={styles.moreText}>more</Text>
-                   </TouchableOpacity>
-                 )}
-                 {isExpanded && (
-                   <TouchableOpacity onPress={() => toggleCaption(data.id)}>
-                     <Text style={styles.moreText}>less</Text>
-                   </TouchableOpacity>
-                 )}
-               </View>
+               <View className='flex flex-row mx-4 gap-3 items-start'>
+                <Text>{item.uploadedBy?.name}</Text>
+                <View>
+              <Text style={styles.caption}>
+                {truncateCaption(item.caption, item._id)} 
+              </Text>
+              {!isExpanded && item.caption?.length > 25 && (
+                <TouchableOpacity onPress={() => toggleCaption(item._id)}>
+                  <Text style={styles.moreText}>more</Text>
+                </TouchableOpacity>
+              )}
+              {isExpanded && (
+                <TouchableOpacity onPress={() => toggleCaption(item._id)}>
+                  <Text style={styles.moreText}>less</Text>
+                </TouchableOpacity>
+              )}
+              </View>
+            </View>
              </View>
            </View>
-         );
-       })}
+      );
+    })}
+    
         <Modal visible={commentClick} animationType="slide" transparent>
          <View style={styles.modalContainer}>
            <View style={styles.modalContent}>
- 
- 
              <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
              <Text style={styles.closeText}>✕</Text>
            </TouchableOpacity>
- 
              <Text style={styles.modalTitle}>Add a Comment</Text>
              <ScrollView style={styles.commentsList}>
    <View style={{ display: 'flex', flexDirection: 'column' }}>
-     {comments[selectedPostId]?.map((comment, index) => (
-      <View style={styles.commentContainer}>
-      <View style={styles.commentHeader}>
-        <Image
-          style={styles.commentImage}
-          source={{ uri: 'path/to/image' }} 
-        />
-        <Text style={styles.commenterName}>userName</Text>
-      </View>
-    
-      {/* Updated Row for Comment and Icon */}
-      <View style={styles.commentTextContainer}>
-        <Text>{comment.text}</Text>
-        <Ionicons name="heart-outline" size={16} color="black" style={{ paddingVertical: 3 }} />
-      </View>
-    
-      <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', marginLeft: 40 }}>
-        <Text style={{ fontSize: 12, color: '#555' }}>
-          {moment(comment.time).fromNow()}
-        </Text>
-        <Text style={{ color: '#87CEEB', fontSize: 12 }}>Reply..</Text>
-      </View>
+   {comments[selectedPostId]?.map((comment, index) => (
+  <View key={index} style={styles.commentContainer}>
+    <View style={styles.commentHeader}>
+      <Image
+        style={styles.commentImage}
+        source={{ uri: 'path/to/image' }} // Replace with actual avatar URL if available
+      />
+      <Text style={styles.commenterName}>{comment.username}</Text> {/* Display actual username */}
     </View>
-    
-     ))}
+    <View style={styles.commentTextContainer}>
+      <Text>{comment.text}</Text>
+      <Ionicons name="heart-outline" size={16} color="black" style={{ paddingVertical: 3 }} />
+    </View>
+    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', marginLeft: 40 }}>
+      <Text style={{ fontSize: 12, color: '#555' }}>
+        {moment(comment.time).fromNow()}
+      </Text>
+      <Text style={{ color: '#87CEEB', fontSize: 12 }}>Reply..</Text>
+    </View>
+  </View>
+))}
+
    </View>
  </ScrollView>
- 
- 
              <View style={styles.commentInputContainer}>
                <TextInput
                  style={styles.commentInput}
@@ -244,11 +314,77 @@ import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, Tex
            </View>
          </View>
        </Modal>
- 
- 
- 
- 
- <Modal visible={photoModalVisible} animationType="fade" transparent>
+
+
+
+
+
+
+       <Modal visible={commentClick} animationType="slide" transparent>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
+        <Text style={styles.closeText}>✕</Text>
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Add a Comment</Text>
+
+      <ScrollView style={styles.commentsList}>
+        <View style={{ display: 'flex', flexDirection: 'column' }}>
+          {/* Ensure comments[selectedPostId] exists */}
+          {console.log(commentss ,"comments[selectedPostId] comments[selectedPostId] ")}
+          {commentss.length > 0 ? (
+  commentss.map((comment, index) => (
+    <View key={comment._id || index} style={styles.commentContainer}>
+      <View style={styles.commentHeader}>
+        <Image
+          style={styles.commentImage}
+          source={{ uri: 'path/to/image' }} // Replace with actual avatar URL if available
+        />
+        <Text style={styles.commenterName}>{comment.username}</Text>
+      </View>
+      <View style={styles.commentTextContainer}>
+        <Text>{comment.text}</Text>
+        <Ionicons name="heart-outline" size={16} color="black" style={{ paddingVertical: 3 }} />
+      </View>
+      <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', marginLeft: 40 }}>
+        <Text style={{ fontSize: 12, color: '#555' }}>
+          {moment(comment.createdAt).fromNow()}
+        </Text>
+        <Text style={{ color: '#87CEEB', fontSize: 12 }}>Reply..</Text>
+      </View>
+    </View>
+  ))
+) : (
+  <Text>No comments available.</Text>
+)}
+
+        </View>
+      </ScrollView>
+
+      <View style={styles.commentInputContainer}>
+        <TextInput
+          style={styles.commentInput}
+          placeholder="Write your comment..."
+          value={commentText}
+          onChangeText={setCommentText}
+          multiline
+        />
+        <TouchableOpacity onPress={handleCommentSubmit}>
+          <Ionicons name="send" size={24} color="#007BFF" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
+
+
+
+
+
+
+
+
+  <Modal visible={photoModalVisible} animationType="fade" transparent>
    <View style={styles.modalContainer}>
      <View style={styles.modalContentForImage}>
        {/* Close Button */}
@@ -260,58 +396,61 @@ import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, Tex
          <>
            {/* User Profile Section */}
            <View style={styles.profileSection}>
-             <Image
+             {/* <Image
                source={{ uri: selectedPhotoPost.imageUrl }}
                style={styles.profileImage}
-             />
-             <Text style={styles.profileName}>{selectedPhotoPost.name}</Text>
+             /> */}
+             <Text style={styles.profileName} className='my-3'>{selectedPhotoPost?.uploadedBy?.name}</Text>
            </View>
  
            {/* Dynamic Image */}
-           <Image
+           {/* <Image
              source={{ uri: selectedPhotoPost.postImage.imageUrl }}
              style={styles.dynamicImage}
              resizeMode="contain"
-           />
+           /> */}
+           <Image
+              source={{uri: selectedPhotoPost.imageUrl}} 
+              style={styles.postImage}        
+            />
  
            {/* Icon Row */}
            <View style={styles.iconRowModal}>
-             <TouchableOpacity onPress={() => toggleLikeFunction(selectedPhotoPost.id)}>
+             <TouchableOpacity onPress={() => toggleLikeFunction(selectedPhotoPost._id)}>
                <FontAwesome
-                 name={toggleLikePost[selectedPhotoPost.id] ? 'heart' : 'heart-o'}
+                 name={toggleLikePost[selectedPhotoPost._id] ? 'heart' : 'heart-o'}
                  size={24}
-                 color={toggleLikePost[selectedPhotoPost.id] ? 'red' : 'black'}
+                 color={toggleLikePost[selectedPhotoPost._id] ? 'red' : 'black'}
                />
              </TouchableOpacity>
-             <TouchableOpacity onPress={() => handleCommentClick(selectedPhotoPost.id)}>
+             <TouchableOpacity onPress={() => handleCommentClick(selectedPhotoPost._id)}>
                <Ionicons name="chatbubble-outline" size={24} color="black" />
              </TouchableOpacity>
              <Ionicons name="share-social-outline" size={24} color="black" />
-             <TouchableOpacity onPress={() => saveToggleFunction(selectedPhotoPost.id)}>
+             <TouchableOpacity onPress={() => saveToggleFunction(selectedPhotoPost._id)}>
                <Ionicons
-                 name={toggleSave[selectedPhotoPost.id] ? 'bookmark' : 'bookmark-outline'}
+                 name={toggleSave[selectedPhotoPost._id] ? 'bookmark' : 'bookmark-outline'}
                  size={24}
-                 color={toggleSave[selectedPhotoPost.id] ? 'black' : ''}
+                 color={toggleSave[selectedPhotoPost._id] ? 'black' : ''}
                />
              </TouchableOpacity>
            </View>
- 
-           {/* Caption */}
-           <Text style={styles.captionForModalImage}>{selectedPhotoPost.postImage.caption}</Text>
+           <View style={styles.captionForModalImage} className='flex flex-row gap-5 items-center mx-7 mt-3'>
+            <Text className='text-md font-bold '>Caption</Text>
+            <Text className= 'text-sm'>
+            {selectedPhotoPost.caption}
+            </Text>
+            </View>
          </>
        )}
      </View>
    </View>
- </Modal>
- 
- 
- 
+ </Modal> 
      </ScrollView>
    );
  }
 
 const styles = StyleSheet.create({
- 
   modalContentForImage: {
     backgroundColor: 'white',
     borderRadius: 10,
@@ -350,8 +489,7 @@ const styles = StyleSheet.create({
   dynamicImage: {
     width: '100%',
     height: undefined, // Ensures height is dynamic
-    aspectRatio: 1, // Maintains original image aspect ratio
-    // borderRadius: 10,
+    aspectRatio: 1, 
     marginTop: 16,
   },
   iconRowModal: {
@@ -362,18 +500,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 10,
   },
-  // caption: {
-  //   paddingHorizontal: 16,
-  //   paddingTop: 12,
-  //   color: '#333',
-  //   fontSize: 14,
-  // },
-
-
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
-    // alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
     paddingTop: 15,
   },
@@ -404,31 +533,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     marginTop: 10,
-    // maxHeight: 150,
-
   },
-
   commentContainer: {
     marginBottom: 10,
     paddingHorizontal: 10,
   },
   commentHeader: {
     flexDirection: 'row',
-    // justifyContent: 'start', // Evenly distributes the icons horizontally
     alignItems: 'center',
-    //  gap: 15,
-    // marginBottom: 5,
   },
-
   commentTextContainer: {
     flexDirection: 'row', // Ensure items are in a row
     alignItems: 'center', // Vertically align text and icon
     justifyContent: 'space-between', // Optional: To space out the text and icon if needed
     marginVertical: 5,
     marginLeft: 40,
-    // paddingHorizontal: 6 // Space between the comment and other elements
   },
-
   commentInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -454,10 +574,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 10,
   },
-
   closeButton: {
     alignSelf: 'flex-end',
-    // padding: 10,
   },
 iconRow: {
   flexDirection: 'row',
@@ -465,13 +583,8 @@ iconRow: {
   alignItems: 'center',
    gap: 15,
 },
-
-container: {
-  // padding: 10,
-},
 postContainer: {
   marginBottom: 10,
-  // padding: 10,
   borderRadius: 5,
   shadowColor: '#000',
   shadowOffset: { width: 0, height: 1 },
@@ -499,30 +612,21 @@ postContent: {
 },
 postImage: {
   width: '100%',
-  height: 200,
-  borderRadius: 5,
-  marginBottom: 5,
+  height: undefined,      // Allow height to adjust naturally based on aspect ratio
+  borderRadius: 5,        // Keep rounded corners
+  marginBottom: 5,        // Add spacing below the image
+  aspectRatio: 1,
 },
 captionContainer: {
   flexDirection: 'row',
   alignItems: 'center',
   flexWrap: 'wrap',
-  paddingHorizontal: 10, 
-  // paddingTop:2,
+  paddingHorizontal: 10,
 },
 caption: {
   fontSize: 13,
   color: '#555',
   marginRight: 5,
-  // paddingHorizontal: 15,
-  // paddingTop: 7,
-},
-captionForModalImage:{
-  fontSize: 13,
-  color: '#555',
-  marginRight: 5,
-  paddingHorizontal: 15,
-  paddingTop: 7,
 },
 moreText: {
   fontSize: 12,

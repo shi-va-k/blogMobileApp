@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import {BASE_URL} from '@env'
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -24,7 +25,7 @@ const SignUpPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("https://1901-2406-b400-b4-8d92-e927-e76-86ca-6c97.ngrok-free.app/user/signUp", {
+      const response = await fetch(`${BASE_URL}/user/signUp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
